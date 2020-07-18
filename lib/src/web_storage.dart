@@ -62,7 +62,16 @@ class Storage {
     var result = await _controller.evaluateJavascript(source: """
     window.$webStorageType.length;
     """);
-    return result != null ? int.parse(json.decode(result)) : null;
+    // NB! result might be a type of double, this check should fix it
+    if (result != null) {
+      if (result is String) {
+        return int.parse(json.decode(result));
+      }
+      if (result is double) {
+        return result.toInt();
+      }
+    }
+    return null;
   }
 
   ///When passed a [key] name and [value], will add that key to the storage, or update that key's value if it already exists.
